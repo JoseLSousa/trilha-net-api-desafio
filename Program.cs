@@ -1,6 +1,23 @@
+using trilha_net_api_desafio.Context;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+if (builder.Environment.IsDevelopment())
+{
+    builder.Configuration.AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true);
+}
+
+// Adiciona o DbContext ao contêiner de injeção de dependência
+var connectionString = builder.Configuration.GetConnectionString("MeuBD");
+Console.WriteLine($"Connection String: {connectionString}");
+
+builder.Services.AddDbContext<OrganizadorContext>(options =>
+    options.UseSqlServer(connectionString));
+
+// Adiciona controladores ao contêiner de injeção de dependência
+builder.Services.AddControllers();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -15,5 +32,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseAuthorization();
+
+app.MapControllers();
 
 app.Run();
